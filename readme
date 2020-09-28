@@ -1,0 +1,38 @@
+说明：
+（1）主要类说明
+kde.py 产生kde图像：kde.png
+skeleton.py 从kde图像产生骨架化图像：skeleton.png
+graph_extract.py 从skeleton.png图像中提取初始地图：skeleton_map_1m.db
+graphdb_matcher_run.py 将skeleton_map_1m.db和原始的道路轨迹进行地图匹配，产生匹配的轨迹
+process_map_matches.py 处理地图匹配后的轨迹，主要是用作后续去掉道路的依据
+JDBCHelper.py JDBC辅助类
+genTrip.py 从数据库获取轨迹辅助类，初始轨迹的预处理类
+ogr_write.py 将db数据写成shp文件格式
+utils.py 工具类
+viterbi.py viterbi算法
+
+（2）文件夹说明
+temp文件夹：所有中间输出和结果
+temp/bounding_boxes：数据边界框
+temp/db：db文件；其中initdb：初始地图，initdb_bak:初始地图备份；updatedb：本次增量轨迹生成的db
+temp/matched_trips_directory_1：HMM匹配后的所有轨迹点
+temp/newTripOut：匹配后的中断点，作为kde 的输入
+temp/shapefile：shp文件，before:initdb的shp文件;update:本次输入的轨迹的shp文件;after:最终initdb的shp文件；
+    shp文件中用fclass字段 来表示道路的等级，0表示为initdb 道路，1表示为本次更新的道路
+temp/skeleton_images：中间图
+
+(3)pipeline逻辑说明
+src.pipeline.run.createInitMap(from,end)：生成初始地图，todo.实际这部分应该从其他来源，且应该存入数据库，直接获取构建，
+从数据库查询时间段from-end的轨迹，作为输入，；整个流程：
+kde.py->skeleton.py->graph_extract.py->graphdb_matcher_run.py->process_map_matches.py
+
+src.pipeline.run.fromTimeDataUpdateBaseMap(from.end)：增量更新地图;逻辑：
+将from-end的轨迹和初始地图进行匹配，产生中断点轨迹，这部分你轨迹就是增量的轨迹，然后将增量轨迹作为方法：
+src.pipeline.run.createInitMap的输入，然后需要对后序的地图进行拓扑的修整
+
+(4)待修改
+增量地图得拓扑修整
+
+
+
+
