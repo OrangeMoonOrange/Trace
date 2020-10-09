@@ -23,6 +23,7 @@ class run:
         self.prefix = "../temp/"
         self.k = kde.KDE()
         kde.prefix=self.prefix
+        
 
 
         # 【数据库】
@@ -44,9 +45,6 @@ class run:
         self.datause_end = cf.get('datause', 'end')
 
         self.trace = SQLHelper(self.targetdb_DBIP, self.targetdb_USRID, self.targetdb_PSW, self.targetdb_DBNAME)
-
-
-
 
         self.cell_size = cf.getint('KDEparam', 'CELLSIZE')
 
