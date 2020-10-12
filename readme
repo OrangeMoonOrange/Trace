@@ -19,7 +19,6 @@ Trace:
         test：测试文件夹
         utils：工具类
 （1）主要类说明
-
 kde.py 产生kde图像：kde.png
 skeleton.py 从kde图像产生骨架化图像：skeleton.png
 graph_extract.py 从skeleton.png图像中提取初始地图：skeleton_map_1m.db
@@ -32,6 +31,7 @@ utils.py 工具类
 viterbi.py viterbi算法
 
 （2）文件夹说明
+所有的中间结果存在配置文件 default中：prefix=../../temp/ 目录下。
 temp文件夹：所有中间输出和结果
 temp/bounding_boxes：数据边界框
 temp/db：db文件；其中initdb：初始地图，initdb_bak:初始地图备份；updatedb：本次增量轨迹生成的db
@@ -42,17 +42,30 @@ temp/shapefile：shp文件，before:initdb的shp文件;update:本次输入的轨
 temp/skeleton_images：中间图
 
 (3)pipeline逻辑说明
-src.pipeline.run.createInitMap(from,end)：生成初始地图，todo.实际这部分应该从其他来源，且应该存入数据库，直接获取构建，
-从数据库查询时间段from-end的轨迹，作为输入，；整个流程：
-kde.py->skeleton.py->graph_extract.py->graphdb_matcher_run.py->process_map_matches.py
+
+
+src.pipeline.run.createInitMap(from,end)：生成初始地图，
+    从数据库查询时间段from-end的轨迹，作为输入，；整个流程：
+    kde.py->skeleton.py->graph_extract.py->graphdb_matcher_run.py->process_map_matches.py
 
 src.pipeline.run.fromTimeDataUpdateBaseMap(from.end)：增量更新地图;逻辑：
-将from-end的轨迹和初始地图进行匹配，产生中断点轨迹，这部分你轨迹就是增量的轨迹，然后将增量轨迹作为方法：
-src.pipeline.run.createInitMap的输入，然后需要对后序的地图进行拓扑的修整
+    将from-end的轨迹和初始地图进行匹配，产生中断点轨迹，这部分你轨迹就是增量的轨迹，然后将增量轨迹作为方法：
+    src.pipeline.run.createInitMap的输入，然后需要对后序的地图进行拓扑的修整
 
-(4)待修改
-增量地图得拓扑修整
-需要修改的地方还是很多的
+
+类kde.pipeline 作为整个算法的入口
+函数1：src.kde.pipeline.runFullData2Map，作用：产生全量地图
+
+函数2：src.kde.pipeline.runUpdateData2Map(from_time,end_time)，作用在：初始地图的基础上，使用时间段(from_time,end_time)
+来更新初始地图
+
+
+
+(5)待完成 todo
+a.实际这部分应该从其他来源，且应该存入数据库，直接获取构建，
+b.增量地图得拓扑修整
+c.完成数据最终存储
+
 
 
 
