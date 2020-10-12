@@ -8,7 +8,7 @@ class Mysqlhelper(object):
     _instance_lock = threading.Lock()
     def __init__(self):
         conf = ConfigurationManager()
-        section=Constants.sourcesdb
+        # 使用本地测试数据
         section=Constants.testdb
         self.server = conf.getProperty(section,Constants.DBIP)
         self.user = conf.getProperty(section,Constants.USRID)
@@ -27,6 +27,8 @@ class Mysqlhelper(object):
                     Mysqlhelper._instance = object.__new__(cls)
         return Mysqlhelper._instance
 
+
+    # CURD操作
     def _CreateConnection(self):
         conn = mysql.connect(
             host=self.server,  # 数据库主机地址

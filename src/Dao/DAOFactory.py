@@ -14,10 +14,12 @@ class DAOFactory(BaseDao):
     def GetConnection():
         return Mysqlhelper().getConnnection()
 
-    def InsertData(self, sql):
+    def InsertData(self, sql,data):
         pass
-    def UpdateData(self,sql):
+    def UpdateData(self,sql,data):
         pass
+
+    # 从数据库获取时间段（from_time,end_time）的轨迹数据
     @staticmethod
     def getPeriodTraceFromDb(from_time, end_time):
         sql = "select PATROLERID,UPTIME,PATROLTRACE1,PATROLTRACE2 from data where UPTIME BETWEEN '%s' AND  '%s'  " \
