@@ -2,12 +2,22 @@
 
 (0) 环境搭建
 使用anaconda 2.7 搭建
-配置的yaml文件：env.yaml
+配置环境的yaml文件：env.yaml
 切换环境脚本:activate.bat
 环境构建脚本：bulid.bat
 (0)项目结构
-
-
+Trace:
+    docs：配置文件目录
+    pylib:一些依赖
+    src:
+        app:resultful接口
+        conf:配置管理类
+        Dao：数据库连接
+        evaluation:算法精度评价
+        kde：算法程序
+        preprocessing：预处理程序
+        test：测试文件夹
+        utils：工具类
 （1）主要类说明
 
 kde.py 产生kde图像：kde.png
@@ -42,9 +52,7 @@ src.pipeline.run.createInitMap的输入，然后需要对后序的地图进行�
 
 (4)待修改
 增量地图得拓扑修整
-
-
-(5)需要修改的地方还是很多的
+需要修改的地方还是很多的
 
 
 
