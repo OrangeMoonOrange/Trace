@@ -13,9 +13,11 @@ import renewal
 import utils
 import ogr_write
 from src.conf import Constants
+from src.conf.ConfigurationManager import ConfigurationManager
 from src.preprocessing.genTrip import Trip_get
 import resultoutput
 from src.Dao.DAOFactory import DAOFactory
+
 
 
 '''
@@ -28,15 +30,15 @@ r.fromTimeDataUpdateBaseMap("2019-08-00", "2019-11-00") 增量更新地图
     输出：会更新 temp/db/initdb/skeleton_map_1m.db
 '''
 class run:
-    def __init__(self, configfile="../docs/default.ini"):
-        cf = ConfigParser.ConfigParser()
-        cf.read(configfile)
+    def __init__(self):
+        cf = ConfigurationManager()
+        prefix =cf.getProperty(Constants.output, Constants.prefix)
         # 【数据库】
         targetdb_section = Constants.targetdb
-        self.targetdb_DBIP = cf.get(targetdb_section, Constants.DBIP)
-        self.targetdb_USRID = cf.get(targetdb_section, Constants.USRID)
-        self.targetdb_PSW = cf.get(targetdb_section, Constants.PSW)
-        self.targetdb_DBNAME = cf.get(targetdb_section, Constants.DBNAME)
+        self.targetdb_DBIP = cf.getProperty(targetdb_section, Constants.DBIP)
+        self.targetdb_USRID = cf.getProperty(targetdb_section, Constants.USRID)
+        self.targetdb_PSW = cf.getProperty(targetdb_section, Constants.PSW)
+        self.targetdb_DBNAME = cf.getProperty(targetdb_section, Constants.DBNAME)
 
         # 基础地图的表的名称
         #self.base_pointtable = cf.get('targetdb', 'BASEPOINTTABLE')
@@ -46,12 +48,18 @@ class run:
         #self.full_pointtable = cf.get('targetdb', 'FULLPOINTTABLE')
         #self.full_linetable = cf.get('targetdb', 'FULLLINETABLE')
 
+        # [HMMparam]
+        HMMparam_section = Constants.HMMparam
+
+        self.constraint_length = cf.getInt(HMMparam_section,Constants.constraint_length)
+        self.max_dist = cf.getInt(HMMparam_section,Constants.max_dist)
+
         # 【datause】
         datause_section = Constants.datause
-        self.datause_start = cf.get(datause_section, Constants.start)
-        self.datause_end = cf.get(datause_section, Constants.end)
+        self.datause_start = cf.getProperty(datause_section, Constants.start)
+        self.datause_end = cf.getProperty(datause_section, Constants.end)
 
-        connection = DAOFactory.GetConnection()
+        # connection = DAOFactory.GetConnection()
 
         #self.trace = SQLHelper(self.targetdb_DBIP, self.targetdb_USRID, self.targetdb_PSW, self.targetdb_DBNAME)
         # self.trace = db.SQLServer(server=cf.get('sourcesdb','dbip'),
@@ -60,17 +68,17 @@ class run:
         #                           database=cf.get('sourcesdb','DBNAME'))
 
         # self.trace.GetConnect()
-        
-        prefix = "../temp/"
 
-        self.cell_size = cf.getint('KDEparam', 'CELLSIZE')
+        self.cell_size = cf.getInt('KDEparam', 'CELLSIZE')
 
-        self.gaussian_blur = cf.getint('KDEparam', 'GAUS_BLUR')
+        self.gaussian_blur = cf.getInt('KDEparam', 'GAUS_BLUR')
 
         # 初始地图  ：应该为OSM地图（） 初始的init.db 在表 ‘edges’ 和表‘segment’ 中有一列 fclass 来表示道路的等级，用来后期更新成shapefile 文件
         #todo OSM -> init.db
         self.init_graphdb_filename=prefix+"db/initdb/skeleton_map_1m.db"
         self.full_graphdb_filename =prefix + "db/fulldb/skeleton_map_1m.db"
+
+        self.shapefile_path=prefix+"shapefile/"
 
         self.init_graphdb_filename_bak = prefix + "db/initdb_bak/skeleton_map_1m.db"
         # 中间文件 kde.py的输出
@@ -90,19 +98,17 @@ class run:
 
         # 创建第一层文件夹updatedb
         fold = [prefix, prefix + "db", prefix + "db/initdb_bak", prefix + "db/fulldb/",
-                prefix + "db/initdb/", prefix + "db/updatedb/", prefix + "db/updatedb/1m", "../temp/newTripOut",
-                self.matched_trips_directory_1, prefix + "bounding_boxes", "../temp/shapefile/",
-                "../temp/shapefile/after", "../temp/shapefile/before", "../temp/shapefile/update"]
+                prefix + "db/initdb/", prefix + "db/updatedb/", prefix + "db/updatedb/1m", prefix+"newTripOut",
+                self.matched_trips_directory_1, prefix + "bounding_boxes", prefix+"shapefile",
+                prefix+"shapefile/after", prefix+"shapefile/before", prefix+"shapefile/update"]
         for x in fold:
             if not os.path.exists(x):
                 os.makedirs(x)
 
 
     def match_trip(self,graphdb_filename, trips_path, output_directory):
-        constraint_length = 10
-        max_dist = 350
 
-        match_graphdb = graphdb_matcher_run.MatchGraphDB(graphdb_filename, constraint_length, max_dist)
+        match_graphdb = graphdb_matcher_run.MatchGraphDB(graphdb_filename, self.constraint_length, self.max_dist)
         all_trip_files = filter(lambda x: x.endswith(".txt"), os.listdir(trips_path))
 
         for i in range(0, len(all_trip_files)):
@@ -112,9 +118,7 @@ class run:
 
     def match_trip_from_db(self, graphdb_filename, all_trips, output_directory):
         # all_trips [Trip,,,,,Trip]
-        constraint_length = 10
-        max_dist = 350
-        match_graphdb = graphdb_matcher_run.MatchGraphDB(graphdb_filename, constraint_length, max_dist)
+        match_graphdb = graphdb_matcher_run.MatchGraphDB(graphdb_filename, self.constraint_length, self.max_dist)
         for i in range(0, len(all_trips)):
             sys.stdout.write("\rProcessing trip " + str(i + 1) + "/" + str(len(all_trips)) + "... ")
             sys.stdout.flush()
@@ -179,7 +183,7 @@ class run:
 
     def fromTimeDataUpdateBaseMap(self, form, end):
         # 删除掉以前的数据
-        a = ["../temp/matched_trips_directory_1", "../temp/newTripOut"]
+        a = [self.matched_trips_directory_1, self.newTripOut]
         for folder in a:
             utils.clean_and_mkdir(folder)
 
@@ -197,25 +201,21 @@ class run:
 
 def runFullData2Map(start,end):
     r = run()
-    #r.createInitMap(start, "2019-08-01")
     r.fromFullData2Map(start,end)
-    shape="../temp/shapefile/"
-    ogr_write.createShapeFile(r.full_graphdb_filename,shape+"full","full")
-    resultoutput.uploadlocaldbdata(r.full_graphdb_filename)
+    # shape="../temp/shapefile/"
+    ogr_write.createShapeFile(r.full_graphdb_filename,r.shapefile_path+"full","full")
+    # resultoutput.uploadlocaldbdata(r.full_graphdb_filename)
 
 def runUpdateData2Map(start,end):
     r = run()
-    #k = kde.KDE()
     r.createInitMap("2019-01-01", "2019-08-01")
-    #r.fromTimeDataUpdateBaseMap("2019-08-00", "2019-11-00")
     r.fromTimeDataUpdateBaseMap(start, end)
-    shape="../temp/shapefile/"
     # 目标db
-    ogr_write.createShapeFile(r.init_graphdb_filename_bak,shape+"before","before")
-    ogr_write.createShapeFile(r.graphdb_filename, shape+"update", "update")
-    ogr_write.createShapeFile(r.init_graphdb_filename,shape+"after","after")
-    resultoutput.uploadlocaldbdata(r.init_graphdb_filename)
+    ogr_write.createShapeFile(r.init_graphdb_filename_bak,r.shapefile_path+"before","before")
+    ogr_write.createShapeFile(r.graphdb_filename, r.shapefile_path+"update", "update")
+    ogr_write.createShapeFile(r.init_graphdb_filename,r.shapefile_path+"after","after")
+    # resultoutput.uploadlocaldbdata(r.init_graphdb_filename)
     
 if __name__ == "__main__":
-    runFullData2Map("2019-01-01","2019-08-01")
-    # runUpdateData2Map("2019-08-01", "2019-11-01")
+    # runFullData2Map("2019-08-01","2019-08-05")
+    runUpdateData2Map("2019-08-01", "2019-08-05")

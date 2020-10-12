@@ -11,7 +11,7 @@ class DAOFactory(BaseDao):
         return Mysqlhelper().ExecQuery(sql)
 
     @staticmethod
-    def GetConnection(self):
+    def GetConnection():
         return Mysqlhelper().getConnnection()
 
     def InsertData(self, sql):

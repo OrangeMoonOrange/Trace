@@ -36,5 +36,11 @@ output='output'
 prefix='prefix'
 
 #[datause]
+datause='datause'
 start ='start'
 end = 'end'
+
+#[HMMparam]
+HMMparam='HMMparam'
+constraint_length = 'constraint_length'
+max_dist = 'max_dist'

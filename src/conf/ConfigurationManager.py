@@ -18,5 +18,5 @@ class ConfigurationManager:
 if __name__ == '__main__':
     manager = ConfigurationManager()
 
-    print Constants.d
+
     print manager.getlong('HMMparam', 'TRANSITION_UTURN')
