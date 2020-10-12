@@ -2,3 +2,4 @@
 /temp/
 .idea
 requirements.txt
+.gitignore
