@@ -1,0 +1,1 @@
+conda activte network

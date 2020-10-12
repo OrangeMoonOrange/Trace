@@ -1,5 +1,15 @@
 说明：
+
+(0) 环境搭建
+使用anaconda 2.7 搭建
+配置的yaml文件：env.yaml
+切换环境脚本:activate.bat
+环境构建脚本：bulid.bat
+(0)项目结构
+
+
 （1）主要类说明
+
 kde.py 产生kde图像：kde.png
 skeleton.py 从kde图像产生骨架化图像：skeleton.png
 graph_extract.py 从skeleton.png图像中提取初始地图：skeleton_map_1m.db
