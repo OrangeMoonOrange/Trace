@@ -9,6 +9,13 @@ USRID = 'USRID'
 PSW = 'PSW'
 DBNAME = 'DBNAME'
 
+# [targetdb]
+targetdb='targetdb'
+BASEPOINTTABLE = 'BASEPOINTTABLE'
+BASELINETABLE = 'BASELINETABLE'
+FULLPOINTTABLE = 'FULLPOINTTABLE'
+FULLLINETABLE = 'FULLLINETABLE'
+
 # [testdb]
 testdb='testdb'
 
@@ -27,3 +34,7 @@ minCount='minCount'
 #[output]
 output='output'
 prefix='prefix'
+
+#[datause]
+start ='start'
+end = 'end'

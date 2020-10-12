@@ -10,8 +10,10 @@ class DAOFactory(BaseDao):
     def ExecQuery(sql):
         return Mysqlhelper().ExecQuery(sql)
 
+    @staticmethod
     def GetConnection(self):
-        pass
+        return Mysqlhelper().getConnnection()
+
     def InsertData(self, sql):
         pass
     def UpdateData(self,sql):
