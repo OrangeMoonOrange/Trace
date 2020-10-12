@@ -1,7 +1,9 @@
 # -*- coding:utf-8 -*-
-from JDBCHelper import SQLHelper
+# from sJDBCHelper import SQLHelper
+from src.Dao.DAOFactory import DAOFactory
 from collections import OrderedDict as linkedHashMap
 import math,time
+from src.conf.ConfigurationManager import *
 EARTH_RADIUS = 6371000.0
 class Location:
     def __init__(self, id, latitude, longitude, time):
@@ -36,7 +38,6 @@ class Container:
     @property
     def get_count(self):
         return (self.count,self.list_count)
-
 class Trip:
     def __init__(self):
         self.locations = []
@@ -77,22 +78,20 @@ class Trip:
        PRIMARY KEY (`GID`)
      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 '''
+# 数据清洗
 class Trip_get:
-    def __init__(self, from_time,end_time,db):
-        # AND PATROLERID ='808'
-        sql = "select PATROLERID,UPTIME,PATROLTRACE1,PATROLTRACE2 from data where UPTIME BETWEEN '%s' AND  '%s'  " \
-              "   ORDER BY PATROLERID,UPTIME ;" %(from_time,end_time)
-        # todo getProp from res
-        self.query = db.ExecQuery(sql)
+    def __init__(self, from_time,end_time):
+        self.query =DAOFactory().getPeriodTraceFromDb(from_time,end_time)
+        conf = ConfigurationManager()
         # 单天 轨迹点的最少数量
-        self.minCount=30
+        self.minCount=conf.getInt(Constants.gentrip,Constants.minCount)
         # 去掉开始和结束 时候的首位 10个点
-        self.offset=int(5)
-        self.distance_threshold=200
-        self.MAX_LAT=float(31.5016455)
-        self.MAX_LON = float(121.11664)
-        self.MIN_LAT = float(31.15)
-        self.MIN_LON = float(120.81)
+        self.offset=conf.getInt(Constants.gentrip,Constants.MINTRACEPOINT)
+        self.distance_threshold=conf.getInt(Constants.gentrip,Constants.distance_threshold)
+        self.MAX_LAT=conf.getlong(Constants.gentrip,Constants.MAX_LAT)
+        self.MAX_LON = conf.getlong(Constants.gentrip,Constants.MAX_LON)
+        self.MIN_LAT = conf.getlong(Constants.gentrip,Constants.MIN_LAT)
+        self.MIN_LON = conf.getlong(Constants.gentrip,Constants.MIN_LON)
     def haversine_distance(self,(a_lat, a_lon), (b_lat, b_lon)):
         if(a_lat==b_lat and a_lon==b_lon):
             return 0.0
@@ -203,6 +202,8 @@ class Trip_get:
         674_2019-08-19_2 count:31
         674_2019-08-19_4 count:29
         """
+
+
     def load_trip_from_db(self):
         all_trips = []
         map = self.process()
@@ -221,47 +222,47 @@ class Trip_get:
             trip.trip_name=k
             all_trips.append(trip)
         return all_trips
-class Trip_2Db:
-    def __init__(self, from_time,end_time):
-        # AND PATROLERID ='808'
-        self.map = Trip_get(from_time, end_time).load_trip_from_db()
-        self.s = SQLHelper("192.168.253.100", "root", "123", "trace")
-
-    # 将process（数据清洗）后的数据存储到 db 中 ，作为业务数据库
-    # 这个程序 可以 每天/每周 执行一次 将清洗后的数据,写入到DB中
-    # sql="CREATE TABLE `processTrace` (
-    #   `GID` int(11) NOT NULL AUTO_INCREMENT,
-    #   `PATROLERID` int(10) NOT NULL,
-    #   `VERSION` int(4) NOT NULL,
-    #   `UPTIME` datetime NOT NULL,
-    #   `PATROLTRACE` text NOT NULL,
-    #   PRIMARY KEY (`GID`)
-    # ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
-    def process2Db(self):
-        param=[]
-        for i in range(0, len(self.map)):
-            trips = self.map[i]
-            name = trips.trip_name
-            # 809_2019-08-09_13
-            split = name.split("_")
-            PATROLERID = split[0]
-            UPTIME = split[1]
-            VERSION = split[2]
-            PATROLTRACE=""
-            locations = trips.locations
-            for location in locations:
-                PATROLTRACE=PATROLTRACE+str(location.time)
-            param.append((PATROLERID,VERSION,UPTIME,PATROLTRACE))
-
-        sql="INSERT INTO processTrace VALUES(NULL,%s,%s,%s,%s);"
-        self.s.ExecBashInsert(sql,param)
-
-        print "done "
+# class Trip_2Db:
+#     def __init__(self, from_time,end_time):
+#         # AND PATROLERID ='808'
+#         self.map = Trip_get(from_time, end_time).load_trip_from_db()
+#         self.s = SQLHelper("192.168.253.100", "root", "123", "trace")
+#
+#     # 将process（数据清洗）后的数据存储到 db 中 ，作为业务数据库
+#     # 这个程序 可以 每天/每周 执行一次 将清洗后的数据,写入到DB中
+#     # sql="CREATE TABLE `processTrace` (
+#     #   `GID` int(11) NOT NULL AUTO_INCREMENT,
+#     #   `PATROLERID` int(10) NOT NULL,
+#     #   `VERSION` int(4) NOT NULL,
+#     #   `UPTIME` datetime NOT NULL,
+#     #   `PATROLTRACE` text NOT NULL,
+#     #   PRIMARY KEY (`GID`)
+#     # ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+#     def process2Db(self):
+#         param=[]
+#         for i in range(0, len(self.map)):
+#             trips = self.map[i]
+#             name = trips.trip_name
+#             # 809_2019-08-09_13
+#             split = name.split("_")
+#             PATROLERID = split[0]
+#             UPTIME = split[1]
+#             VERSION = split[2]
+#             PATROLTRACE=""
+#             locations = trips.locations
+#             for location in locations:
+#                 PATROLTRACE=PATROLTRACE+str(location.time)
+#             param.append((PATROLERID,VERSION,UPTIME,PATROLTRACE))
+#
+#         sql="INSERT INTO processTrace VALUES(NULL,%s,%s,%s,%s);"
+#         self.s.ExecBashInsert(sql,param)
+#
+#         print "done "
 
 
 
 if __name__ == "__main__":
-    pass
+    print Trip_get("2019-00-00", "2019-08-00").load_trip_from_db()
 
 
 

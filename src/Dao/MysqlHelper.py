@@ -1,34 +1,40 @@
 # -*- coding:utf-8 -*-
 import mysql.connector as mysql
+import threading
+from src.conf.ConfigurationManager import *
 
+class Mysqlhelper(object):
+    # 多线程加锁
+    _instance_lock = threading.Lock()
+    def __init__(self):
+        conf = ConfigurationManager()
+        section=Constants.sourcesdb
+        section=Constants.testdb
+        self.server = conf.getProperty(section,Constants.DBIP)
+        self.user = conf.getProperty(section,Constants.USRID)
+        self.password = conf.getProperty(section,Constants.PSW)
+        self.database = conf.getProperty(section,Constants.DBNAME)
 
-# JDBC辅助组件
-class SQLHelper(object):
-    instance=None
-    def __init__(self,server,user,password,database):
-        self.server=server
-        self.user=user
-        self.password=password
-        self.database=database
-        self._conf = ConfiguationManager()
-        # 是否本地运行
-
-        self.conn=self._CreateConnection()
+        self.conn = self._CreateConnection()
         self.cur = self.conn.cursor()
         if not self.cur:
             self.__delete__()
-    def __delete__(self):
-        self.conn.close()
-    def _CreateConnection(self):
+    # 构建单例模式
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(Mysqlhelper, "_instance"):
+            with Mysqlhelper._instance_lock:
+                if not hasattr(Mysqlhelper, "_instance"):
+                    Mysqlhelper._instance = object.__new__(cls)
+        return Mysqlhelper._instance
 
+    def _CreateConnection(self):
         conn = mysql.connect(
             host=self.server,  # 数据库主机地址
             user=self.user,  # 数据库用户名
-            passwd=self.password , # 数据库密码
-            database = self.database,
+            passwd=self.password,  # 数据库密码
+            database=self.database,
             charset="utf8")
         return conn
-
     def getCursor(self):
         return self.cur
     def getConnnection(self):
@@ -55,15 +61,10 @@ class SQLHelper(object):
     def __delete__(self):
         self.getConnnection().close()
 
-if __name__ == "__main__":
-    sql_ = SQLHelper("192.168.253.100","root","123","trace")
-    cur = sql_.getCursor()
-    base_pointtable="base_pointtable"
-    base_linetable="base_linetable"
-    query = sql_.ExecQuery(
-        "SELECT table_name FROM information_schema.TABLES WHERE table_name ='" + str(base_pointtable) + "'")
-    squery = sql_.ExecQuery(
-        "SELECT table_name FROM information_schema.TABLES WHERE table_name ='" + str(base_linetable) + "'")
-    print squery
+if __name__ == '__main__':
+    conf = ConfigurationManager()
+    server = conf.getProperty('testdb', Constants.DBIP)
+    print server
+
 
 

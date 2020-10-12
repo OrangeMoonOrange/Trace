@@ -573,9 +573,9 @@ if __name__ == '__main__':
     #
     # usage: python graph_extract.py skeletons/skeleton_7m.png bounding_boxes/bounding_box_7m.txt skeleton_maps/skeleton_map_7m.db
     #
-    skeleton_filename = "../temp_20190000-20190500-20200000/skeleton.png"
-    bounding_box_filename = "../temp_20190000-20190500-20200000/bounding_boxes/bounding_box_1m.txt"
-    output_filename = "../temp_20190000-20190500-20200000/skeleton_map_1m.db"
+    skeleton_filename = "../../temp/skeleton.png"
+    bounding_box_filename = "../../temp/bounding_boxes/bounding_box_1m.txt"
+    output_filename = "../../temp/skeleton_map_1m.db"
     
     print ("skeleton filename: ") + str(skeleton_filename)
     print ("bounding box filename: ") + str(bounding_box_filename)

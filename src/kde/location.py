@@ -1,12 +1,6 @@
-#
-# Location-related classes for storing and loading GPS traces.
-# Author: James P. Biagioni (jbiagi1@uic.edu)
-# Company: University of Illinois at Chicago
-# Created: 5/16/11
-#
-
 import os
-from genTrip import Trip_get as tp
+from src.preprocessing.genTrip import Trip_get
+from src.conf import *
 
 class Location:
     def __init__(self, id, latitude, longitude, time):
@@ -42,7 +36,7 @@ class Trip:
         return (self.end_time - self.start_time)
 
 class TripLoader:
-    
+
     @staticmethod
     def load_all_trips(trips_path):
 
@@ -93,33 +87,8 @@ class TripLoader:
         return new_trip
 
     @staticmethod
-    def load_trip_from_db():
-        t = tp("2019-08-00", "2019-9-23")
-        all_trips = []
-        map = t.process()
-        c = map[map.keys()[0]][0][0]
-        max_lat = c[0][0].latitude
-        max_lon = c[0][0].longitude
-        min_lat = c[0][0].latitude
-        min_lon = c[0][0].longitude
-        print max_lon
-        # for k,v in map.iteritems():
-        #     (a,b)=v.get_count
-        #     one_list = v.move_to_one_list()
-        #     all_trips.append(one_list)
-        #     (lat, lon, lat, lon) = v.get_box
-        #     if (lat < min_lat):
-        #         min_lat = lat
-        #     if (lat > max_lat):
-        #         max_lat = lat
-        #     if (lon < min_lon):
-        #         min_lon = lon
-        #     if (lon > max_lon):
-        #         max_lon = lon
-        # return all_trips,(min_lat, max_lat, min_lon, max_lon)
-
-
-
+    def load_all_trips_from_db(from_time,end_time):
+        return Trip_get(from_time,end_time).load_trip_from_db()
 
 class TripWriter:
     
@@ -141,6 +110,6 @@ class TripWriter:
         
         # close trip file
         trip_file.close()
-if __name__ == '__main__':
-   from_file = TripLoader.load_trip_from_file("../trips/trip_0.txt")
-   print from_file
+
+
+

@@ -1,5 +1,5 @@
 import pyximport; pyximport.install()
-import subiterations
+import src.subiterations
 import numpy as np
 import scipy.ndimage as nd
 from scipy.ndimage import imread
@@ -9,7 +9,7 @@ from scipy.stats import threshold
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 
-skeleton_images_path = "../temp/skeleton_images/"
+skeleton_images_path = "../../temp/skeleton_images/"
 
 class GrayscaleSkeleton:
     def __init__(self):
@@ -58,8 +58,8 @@ class GrayscaleSkeleton:
         check_pixels = zip(fg_pixels[0], fg_pixels[1])
 
         while len(check_pixels)>0:
-            (image, sub1_check_pixels) = self.parallel_sub(subiterations.first_subiteration, image, check_pixels) 
-            (image, sub2_check_pixels) = self.parallel_sub(subiterations.second_subiteration, image, list(set(check_pixels+sub1_check_pixels)))
+            (image, sub1_check_pixels) = self.parallel_sub(src.subiterations.first_subiteration, image, check_pixels)
+            (image, sub2_check_pixels) = self.parallel_sub(src.subiterations.second_subiteration, image, list(set(check_pixels + sub1_check_pixels)))
             check_pixels=list(set(sub1_check_pixels+sub2_check_pixels))
 
         neighbors = nd.convolve(image>0,[[1,1,1],[1,0,1],[1,1,1]],mode='constant',cval=0.0)
@@ -137,8 +137,8 @@ def circle(radius):
 
 import sys, time
 if __name__ == '__main__':
-    input_filename = "../temp_20190000-20190500-20200000/kde.png"
-    output_filename = "../temp_20190000-20190500-20200000/skeleton.png"
+    input_filename = "../../temp/kde.png"
+    output_filename = "../../temp/skeleton.png"
     
     print ("input filename: ") + str(input_filename)
     print ("output filename: ") + str(output_filename)
@@ -154,4 +154,4 @@ if __name__ == '__main__':
     
     toimage(skeleton, cmin=0, cmax=255).save(output_filename)
 
-    # imsave("sss.jpg", skeleton)
+    imsave("../../temp/sss.jpg", skeleton)

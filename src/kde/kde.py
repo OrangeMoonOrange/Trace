@@ -1,12 +1,14 @@
 # coding:utf-8
+'''
+说明：产生kde图像
+'''
 from cv2 import cv as cv
-import sys,os
+import sys
 from location import TripLoader
 from pylibs import spatialfunclib
 from itertools import tee
-from genTrip import Trip_get
-from JDBCHelper import SQLHelper
-prefix=None
+from src.conf.ConfigurationManager import *
+
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)
@@ -20,8 +22,8 @@ class KDE:
         # print ("trips path: ") + str(trips_path)
         print ("cell size: ") + str(cell_size)
         print ("gaussian blur: ") + str(gaussian_blur)
-        # flag to save images
-        save_images = True
+        conf = ConfigurationManager()
+        prefix = conf.getProperty(Constants.output,Constants.prefix)
 
         sys.stdout.write("\nFinding bounding box... ")
         sys.stdout.flush()
@@ -31,6 +33,7 @@ class KDE:
         min_lon = all_trips[0].locations[0].longitude
         max_lon = all_trips[0].locations[0].longitude
 
+        # 寻找地图的边界，会存在temp/bounding_boxes/ 目录下
         for trip in all_trips:
             for location in trip.locations:
                 if (location.latitude < min_lat):
@@ -71,9 +74,7 @@ class KDE:
         themap = cv.CreateMat(height, width, cv.CV_16UC1)
         cv.SetZero(themap)
 
-        ##
         ## Build an aggregate intensity map from all the edges
-        ##
 
         trip_counter = 1
 
@@ -96,8 +97,8 @@ class KDE:
                 dy = height - int(yscale * (dest.latitude - min_lat))
                 dx = int(xscale * (dest.longitude - min_lon))
                 cv.Line(temp, (ox, oy), (dx, dy), (32), 1, cv.CV_AA)
-            #     图片 线段的第一个点 第二个点 线条颜色 线粗细 线类型 shift（点坐标中的小数位数）
-            # 8（8连通线） 4（4连通线） CV_AA（抗锯齿线）
+            #  图片 线段的第一个点 第二个点 线条颜色 线粗细 线类型 shift（点坐标中的小数位数）
+            #   参数解释：8（8连通线） 4（4连通线） CV_AA（抗锯齿线）
 
             # accumulate trips into themap
             cv.ConvertScale(temp, temp16, 1, 0)
@@ -128,7 +129,6 @@ class KDE:
                 cv.Line(lines, (ox, oy), (dx, dy), (255), 1, cv.CV_AA)
 
         # save the lines
-
         cv.SaveImage(prefix+"raw_data.png", lines)
         print ("done.")
         # print "Intensity map acquired."
@@ -147,14 +147,12 @@ class KDE:
 if __name__ == '__main__':
 
     k = KDE()
-    # trace = SQLHelper("192.168.253.100","root","123","trace")
-    #
-    # trips = Trip_get("2019-00-00", "2019-08-00",trace).load_trip_from_db()
-    # k.create_kde_with_trips(trips, 20, 17)
+    trips = TripLoader.load_all_trips_from_db("2019-00-01", "2019-08-01")
+    k.create_kde_with_trips(trips, 20, 17)
 
-    trips_path="../trips"
-    prefix="../temp_20190000-20190500-20200000/"
-    trips = TripLoader.load_all_trips(trips_path)
-    k.create_kde_with_trips(trips, 1,17)
+    # trips_path="../trips"
+    # prefix="../temp_20190000-20190500-20200000/"
+    # trips = TripLoader.load_all_trips(trips_path)
+    # k.create_kde_with_trips(trips, 1,17)
 
 
