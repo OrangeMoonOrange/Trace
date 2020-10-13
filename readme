@@ -43,7 +43,6 @@ temp/skeleton_images：中间图
 
 (3)pipeline逻辑说明
 
-
 src.pipeline.run.createInitMap(from,end)：生成初始地图，
     从数据库查询时间段from-end的轨迹，作为输入，；整个流程：
     kde.py->skeleton.py->graph_extract.py->graphdb_matcher_run.py->process_map_matches.py
