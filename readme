@@ -18,6 +18,7 @@ Trace:
         preprocessing：预处理程序
         test：测试文件夹
         utils：工具类
+    testdata:测试数据
 （1）主要类说明
 kde.py 产生kde图像：kde.png
 skeleton.py 从kde图像产生骨架化图像：skeleton.png
