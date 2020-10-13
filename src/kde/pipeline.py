@@ -217,5 +217,5 @@ def runUpdateData2Map(start,end):
     # resultoutput.uploadlocaldbdata(r.init_graphdb_filename)
     
 if __name__ == "__main__":
-    # runFullData2Map("2019-08-01","2019-08-05")
+    # runFullData2Map("2019-01-01","2019-08-00")
     runUpdateData2Map("2019-08-01", "2019-08-05")
