@@ -6,6 +6,8 @@ from flask import request
 executor = ThreadPoolExecutor(1)
 app = Flask(__name__)
 
+
+# 第一个路由实现增量更新 \v1\?start=&end=
 @app.route('/v1/')
 def genroadnet():
     start = request.args.get("start")
