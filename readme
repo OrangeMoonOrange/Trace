@@ -80,8 +80,10 @@ src.pipeline.run.fromTimeDataUpdateBaseMap(from.end)：增量更新地图;逻辑
     会在$/temp/db/initdb 目录下生成初始地图（时间段为"2019-01-01", "2019-08-01"，待改进）
     会在$/temp/db/updatedb 目录下生成你输出的时间段（from_tim,end_time）来更新初始地图的结果
 
- 可视化输出：在$/temp/shapefile 目录下会生成 before.shp,update.shp,after.shp
+ 可视化输出：在$/temp/shapefile 对应的目录下会生成 before.shp,update.shp,after.shp
  分别表示：初始地图，此次更新的地图，最终合并的地图
+
+
 
 
 
