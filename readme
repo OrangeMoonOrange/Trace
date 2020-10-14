@@ -1,11 +1,28 @@
 说明：
 
-(0) 环境搭建
+（1）项目需求：1）从GPS轨迹中提取道路路网；2）使用从GPS轨迹数据提取的道路网络补充OSM路网，实现增量更新OSM道路路网
+
+（2）数据分析：
+	真实数据来源于昆山巡检的轨迹数据，这里，testdb.csv作了简化，实际查询一样
+	数据格式：GID,PATROLERID,UPTIME,PATROLTRACE1,PATROLTRACE2
+	其中PATROLTRACE1的格式：
+
+		测试数据库说明：
+		trace数据库
+			表一：data：作为数据源头
+			表二：
+				base_roadnet_nod：初始地图点存储
+				base_roadnet_lin：初始地图边存储
+				full_roadnet_nod：增量地图点存储
+				full_roadnet_lin：增量地图边存储
+
+
+(3) 环境搭建
 使用anaconda 2.7 搭建
 配置环境的yaml文件：env.yaml
 切换环境脚本:activate.bat
 环境构建脚本：bulid.bat
-(0)项目结构
+(4)项目结构
 Trace:
     docs：配置文件目录
     pylib:一些依赖
