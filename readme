@@ -3,22 +3,23 @@
 （1）项目需求：1）从GPS轨迹中提取道路路网；2）使用从GPS轨迹数据提取的道路网络补充OSM路网，实现增量更新OSM道路路网
 
 （2）数据分析：
-	真实数据来源于昆山巡检的轨迹数据，这里，testdb.csv作了简化，实际查询一样
-	数据格式：GID,PATROLERID,UPTIME,PATROLTRACE1,PATROLTRACE2
+	真实数据来源于昆山巡检的轨迹数据，这里使用测试数据，testdb.csv（testData文件夹下）作了简化，实际查询一样
+	数据格式：GID,PATROLERID,UPTIME,PATROLTRACE1,PATROLTRACE2，分隔符号：‘;’
 	其中PATROLTRACE1的格式：
 
-		测试数据库说明：
-		trace数据库
-			表一：data：作为数据源头
-			表二：
-				base_roadnet_nod：初始地图点存储
-				base_roadnet_lin：初始地图边存储
-				full_roadnet_nod：增量地图点存储
-				full_roadnet_lin：增量地图边存储
+	
+	测试数据库说明：
+	trace数据库
+		表一：data：作为数据源头
+		表二：
+			base_roadnet_nod：初始地图点存储
+			base_roadnet_lin：初始地图边存储
+			full_roadnet_nod：增量地图点存储
+			full_roadnet_lin：增量地图边存储
 
 
 (3) 环境搭建
-使用anaconda 2.7 搭建
+使用anaconda 2.7 搭建 （anaconda环境导入参考文章：https://blog.csdn.net/li1014269733/article/details/93880580）
 配置环境的yaml文件：env.yaml
 切换环境脚本:activate.bat
 环境构建脚本：bulid.bat
@@ -36,7 +37,7 @@ Trace:
         test：测试文件夹
         utils：工具类
     testdata:测试数据
-（1）主要类说明
+（5）主要类说明
 kde.py 产生kde图像：kde.png
 skeleton.py 从kde图像产生骨架化图像：skeleton.png
 graph_extract.py 从skeleton.png图像中提取初始地图：skeleton_map_1m.db
@@ -48,7 +49,7 @@ ogr_write.py 将db数据写成shp文件格式
 utils.py 工具类
 viterbi.py viterbi算法
 
-（2）文件夹说明
+（6）文件夹说明
 所有的中间结果存在配置文件 default中：prefix=../../temp/ 目录下。
 temp文件夹：所有中间输出和结果
 temp/bounding_boxes：数据边界框
@@ -59,7 +60,7 @@ temp/shapefile：shp文件，before:initdb的shp文件;update:本次输入的轨
     shp文件中用fclass字段 来表示道路的等级，0表示为initdb 道路，1表示为本次更新的道路
 temp/skeleton_images：中间图
 
-(3)pipeline逻辑说明
+(7)pipeline逻辑说明（算法入口）
 
 src.pipeline.run.createInitMap(from,end)：生成初始地图，
     从数据库查询时间段from-end的轨迹，作为输入，；整个流程：
@@ -75,10 +76,16 @@ src.pipeline.run.fromTimeDataUpdateBaseMap(from.end)：增量更新地图;逻辑
 
 函数2：src.kde.pipeline.runUpdateData2Map(from_time,end_time)，作用在：初始地图的基础上，使用时间段(from_time,end_time)
 来更新初始地图
+输出说明：
+    会在$/temp/db/initdb 目录下生成初始地图（时间段为"2019-01-01", "2019-08-01"，待改进）
+    会在$/temp/db/updatedb 目录下生成你输出的时间段（from_tim,end_time）来更新初始地图的结果
+
+ 可视化输出：在$/temp/shapefile 目录下会生成 before.shp,update.shp,after.shp
+ 分别表示：初始地图，此次更新的地图，最终合并的地图
 
 
 
-(5)待完成 todo
+(8)待完成清单
 a.实际这部分应该从其他来源，且应该存入数据库，直接获取构建，
 b.增量地图得拓扑修整
 c.完成数据最终存储
