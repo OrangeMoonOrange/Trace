@@ -108,9 +108,16 @@ class Trip_get:
         map = linkedHashMap()
         for x,y,z,l in query:
             #  PATROLTRACE2
-            trip2= l.strip('\n')
+            if l:
+                trip2 = l.strip('\n')
+            else:
+                trip2 = u''
+
             # PATROLTRACE1
-            trip1=z.strip('\n')
+            if z:
+                trip1 = z.strip('\n')
+            else:
+                trip1 = u''
             trip=trip1+trip2
             (split_list, len_) = self.helpSplit(str(trip))
             # 拼凑 LinkedHashMap的 key ,格式：工人id_时间（yyyy-MM-dd）_版本号码(默认为零) 后面随着将轨迹依照距离阈值 分割会一次增加
