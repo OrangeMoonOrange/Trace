@@ -1,9 +1,9 @@
 # coding=utf-8
-# -*- coding:utf-8 -*-
+# 如果数据库使用sqlserver ，需要自己实现BaseDao方法，修改DAOFactory里面的实现
 from src.conf.ConfigurationManager import *
 import pymssql
 class SqlServerHelper:
-    def __init__(self, server, user, password, database):
+    def __init__(self):
         conf = ConfigurationManager()
         # 使用本地测试数据
         section = Constants.testdb
@@ -12,8 +12,9 @@ class SqlServerHelper:
         self.password = conf.getProperty(section, Constants.PSW)
         self.database = conf.getProperty(section, Constants.DBNAME)
         # 类的构造函数，初始化DBC连接信息
-        self.conn = None
-        self.cur = None
+        # self.conn = None
+        # self.cur = None
+        self.GetConnect()
 
     def __delete__(self):
         self.conn.close()
@@ -51,8 +52,8 @@ class SqlServerHelper:
 
 
 if __name__ == "__main__":
-    db = SqlServerHelper("192.168.10.197", "sa", "YSD@city", "kswq")
+    db = SqlServerHelper("192.168.10.124", "sa", "YSD@city", "kspatrol")
     db.GetConnect()
-    sql = "SELECT [PATROLTRACE1] FROM [dbo].[PATROL_TRACE] WHERE [UPTIME] <= '{}' AND [UPTIME] >= '{}' ORDER BY [PATROLERID],[PATROLTIME]".format(
-        "2019-09-01 00:00:00", "2019-08-01 00:00:00")
+    sql = "select PATROLERID,UPTIME,PATROLTRACE1,PATROLTRACE2 from PATROL_TRACE where UPTIME BETWEEN '2019-08-01' and '2019-08-05' ORDER BY PATROLERID,UPTIME ;"
     print(db.ExecQuery(sql))
+
