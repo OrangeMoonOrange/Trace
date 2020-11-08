@@ -1,5 +1,7 @@
+# coding=utf-8
 import os
-from src.preprocessing.genTrip import Trip_get
+from src.preprocessing.GenTrip import Trip_get
+
 from src.conf import *
 
 class Location:
@@ -78,7 +80,7 @@ class TripLoader:
             location_elements = trip_location.strip('\n').split(',')
             
             # create and store new location object
-            new_trip.add_location(Location(str(location_elements[0]), float(location_elements[1]), float(location_elements[2]), float(location_elements[3])))
+            new_trip.add_location(Location(str(location_elements[0]), float(location_elements[1]), float(location_elements[2]), str(location_elements[3])))
         
         # close trip file
         trip_file.close()
@@ -86,9 +88,27 @@ class TripLoader:
         # return new trip
         return new_trip
 
+    # 递归的读取多个文件夹里面的内容，然后加载成kde的输入
+    @staticmethod
+    def load_all_trips_recursive(trips_path):
+        res=[]
+        for root, dirs, files in os.walk(trips_path):
+            for dir in dirs:
+                # 拿到子文件夹
+                a = os.path.join(root, dir).decode('gbk').encode('utf-8')
+                trip=TripLoader.load_all_trips(a)
+                res+=trip
+        return res
+
+
+
+    # 昆山轨迹数据的加载类
     @staticmethod
     def load_all_trips_from_db(from_time,end_time):
         return Trip_get(from_time,end_time).load_trip_from_db()
+
+
+
 
 class TripWriter:
     
@@ -110,6 +130,14 @@ class TripWriter:
         
         # close trip file
         trip_file.close()
+
+if __name__ == '__main__':
+   a=TripLoader.load_all_trips_recursive("/testData/newInput")
+   for x in a:
+       print x
+
+
+
 
 
 
